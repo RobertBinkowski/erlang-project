@@ -7,19 +7,38 @@
 %%% Created : 17 Mar 2022 by Robert Binkowski
 %%%-------------------------------------------------------------------
 -module(erlProject).
--export().
+-export([len/1,fastLength/1,sortServ/1,launchNode/1,printTable/1]).
 
-reverseServer()->
+% len([])->
+%     0;
+
+% len([_|Tail])->
+%     1+len(Tail).
+
+% fastLength([])->
+%     0;
+% fastLength([_|Tail])->
+
+
+sortServ(N)->
     receive
-        [H|T] ->
-            Answer=reverse([H|T]),
-            io:format("Reverse list is:~p~n",[Answer])
-        {A,B} ->
-            io:format("Reverse tuple is:~p~n",[{B,A}])
-        _ ->
-            io:format("Not Working")
+        {Sender,List} ->
+            SortedList=sort(List),
+            io:format("call no. ~p: ~p~n",[N,SortedList]),
+            Sender!{self(),NewList}
         end,
-        reverseServer().
+        sortServ(N+1).
+
+
+
+launchNode(N)->
+    end.
+
+connectNode(NicknameOne,PidOne,NickanmeTwo,PidTwo)->
+    end.
+
+printTable(Pid)->
+    end.
 
 % -export([member/2,delete/2,sum/1,max/1,zip/2,sort/1,rev/1,aSort/1]).
 
