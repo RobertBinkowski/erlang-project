@@ -7,38 +7,105 @@
 %%% Created : 17 Mar 2022 by Robert Binkowski
 %%%-------------------------------------------------------------------
 -module(erlProject).
--export([len/1,fastLength/1,sortServ/1,launchNode/1,printTable/1]).
+-export([
+    spawn/2,
+    sort/1,
+    sortServ/1,
+    rpc/2,
+    launchNode/1,
+    connectNode/4,
+    printTable/1,
+    on_exit/2,
+    keep_alive/2,
+    nth/2,
+    sorty/2,
+    sortServe/1
+]).
 
-% len([])->
-%     0;
+% Process Creation
+spawn(Module, Name, Args) -> pid()
+    Module = Name = atom()
+    Args = [Arg1,...,ArgN]
+        ArgI = term()
 
-% len([_|Tail])->
-%     1+len(Tail).
+% Object Creation
+% define(USER_BUCKET, <<"Human">>)
+% define(MSG_BUCKET, <<"Messages">>)
 
-% fastLength([])->
-%     0;
-% fastLength([_|Tail])->
+% record(USER_BUCKET, {user_name})
+% record(MSG_BUCKET,)
 
+nth(N,[Head,Tail])->
+    nth(N-1, Tail)
 
-sortServ(N)->
+% sort
+sort([Head | Tail]) ->
+    insert(Head, sort(Tail)).
+
+sort([A, B]) when A > B ->
+    [A, B];
+sort([A, B]) ->
+    [B, A];
+sort([Head | Tail]) ->
+    sort([X || X <- Tail, X < Head]) ++ [Head] ++
+        sort([X || X <- Tail, X >= Head]).
+
+sortServ(N) ->
     receive
-        {Sender,List} ->
-            SortedList=sort(List),
-            io:format("call no. ~p: ~p~n",[N,SortedList]),
-            Sender!{self(),NewList}
-        end,
-        sortServ(N+1).
+        {Sender, List} ->
+            SortedList = sort(List),
+            io:format("call no. ~p: ~p~n", [N, SortedList]),
+            Sender ! {self(), SortedList}
+    end,
+    sortServ(N + 1).
 
-
-
-launchNode(N)->
+sorty(Pid, List) ->
+    Pid ! {self(), List},
+    receive
+        {Pid, Answer} ->
+            io:format("answer received~n")
     end.
 
+% RPC Functionality
+rpc(Pid, Message) ->
+    Pid ! {self(), Message},
+    receive
+        {Pid, Reply} ->
+            Reply
+    end.
+
+% Main Project Parts
+% Node()->
+%     end.
+
+launchNode(N)->
+    Nickname = N
+    end.
+
+computeNthPrime(computeNthPrime, N, DestinationNickname, SenderNickname,Hops)->
+    N*computeNthPrime(N-1)
+
+
 connectNode(NicknameOne,PidOne,NickanmeTwo,PidTwo)->
+    
     end.
 
 printTable(Pid)->
     end.
+
+% Keep alive restart when killed
+on_exit(PID, FUN) ->
+    spawn(fun() ->
+        Ref = monitor(process, PID),
+        receive
+            {'DOWN', Ref, process, PID, Reason} -> FUN(Reason)
+        end
+    end).
+
+keep_alive(Name, FUN) ->
+    Pid = spawn(FUN),
+    register(Name, Pid),
+    on_exit(Pid, fun(_Reason) -> keep_alive(Name, FUN) end).
 
 % -export([member/2,delete/2,sum/1,max/1,zip/2,sort/1,rev/1,aSort/1]).
 
