@@ -8,6 +8,7 @@
 %%%-------------------------------------------------------------------
 -module(erlProject).
 -export([
+    start/0,
     spawn/2,
     sort/1,
     sortServ/1,
@@ -19,45 +20,37 @@
     keep_alive/2,
     nth/2,
     sorty/2,
-    sortServe/1
+    sortServe/1,
+    node/1
 ]).
 
-% Process Creation
-spawn(Module, Name, Args) -> pid()
-    Module = Name = atom()
-    Args = [Arg1,...,ArgN]
-        ArgI = term()
+%start the process
+start()->
+    register(erlProject,spawn(fun()->launchNode() end)).
 
-% Object Creation
-% define(USER_BUCKET, <<"Human">>)
-% define(MSG_BUCKET, <<"Messages">>)
-
-% record(USER_BUCKET, {user_name})
-% record(MSG_BUCKET,)
-
-nth(N,[Head,Tail])->
-    nth(N-1, Tail)
+% nth(N,[Head,Tail])->
+%     nth(N-1, Tail)
 
 % sort
-sort([Head | Tail]) ->
-    insert(Head, sort(Tail)).
+% sort([Head | Tail]) ->
+%     insert(Head, sort(Tail)).
 
-sort([A, B]) when A > B ->
-    [A, B];
-sort([A, B]) ->
-    [B, A];
-sort([Head | Tail]) ->
-    sort([X || X <- Tail, X < Head]) ++ [Head] ++
-        sort([X || X <- Tail, X >= Head]).
+% sort([A, B]) when A > B ->
+%     [A, B];
+% sort([A, B]) ->
+%     [B, A];
+% sort([Head | Tail]) ->
+%     sort([X || X <- Tail, X < Head]) ++ [Head] ++
+%         sort([X || X <- Tail, X >= Head]).
 
-sortServ(N) ->
-    receive
-        {Sender, List} ->
-            SortedList = sort(List),
-            io:format("call no. ~p: ~p~n", [N, SortedList]),
-            Sender ! {self(), SortedList}
-    end,
-    sortServ(N + 1).
+% sortServ(N) ->
+%     receive
+%         {Sender, List} ->
+%             SortedList = sort(List),
+%             io:format("call no. ~p: ~p~n", [N, SortedList]),
+%             Sender ! {self(), SortedList}
+%     end,
+%     sortServ(N + 1).
 
 sorty(Pid, List) ->
     Pid ! {self(), List},
@@ -67,6 +60,7 @@ sorty(Pid, List) ->
     end.
 
 % RPC Functionality
+% Receive answer from a remote call
 rpc(Pid, Message) ->
     Pid ! {self(), Message},
     receive
@@ -75,15 +69,30 @@ rpc(Pid, Message) ->
     end.
 
 % Main Project Parts
-% Node()->
-%     end.
+store(Key, Value)->
+    % returns process Pid
+    rpc({store,key,Value}).
 
 launchNode(N)->
-    Nickname = N
+    receive
+        {from,{store,Argument1,Argument2}}->
+            put(Argument2,{ok,Argument2})
+        Nickname = N
+        launchNode(N) %call itself to end.
+        {from,{computeNthPrime,N,DestinationNickname,SenderNickname,Hoops}}->
+            put(N,DestinationNickname,SenderNickname,Hoops)
+        launchNode(N) %call itself to end.
+        {from,{receiveAsnwer,N,M,DestinationNickname,SenderNickname,Hops}}->
+            put(N,M,DestinationNickname,SenderNickname,Hoops)
+        launchNode(N) %call itself to end.
     end.
 
-computeNthPrime(computeNthPrime, N, DestinationNickname, SenderNickname,Hops)->
-    N*computeNthPrime(N-1)
+receiveAsnwer(N,M,DestinationNickname,SenderNickname,Hops)->
+    
+    end.
+
+computeNthPrime(N, DestinationNickname, SenderNickname, Hops)->
+    N*computeNthPrime(N-1).
 
 
 connectNode(NicknameOne,PidOne,NickanmeTwo,PidTwo)->
@@ -106,8 +115,6 @@ keep_alive(Name, FUN) ->
     Pid = spawn(FUN),
     register(Name, Pid),
     on_exit(Pid, fun(_Reason) -> keep_alive(Name, FUN) end).
-
-% -export([member/2,delete/2,sum/1,max/1,zip/2,sort/1,rev/1,aSort/1]).
 
 % member(_,[])->
 %     false;
