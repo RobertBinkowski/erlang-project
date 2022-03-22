@@ -26,6 +26,21 @@
 
 %start the process
 start()->
+    %This section creates and assigns the nodes
+    Node1 = launchNode(node1),
+    Node2 = launchNode(node2),
+    Node3 = launchNode(node3),
+    Node4 = launchNode(node4),
+    Node5 = launchNode(node5),
+    % Connect Nodes to each other - One to One/One to Three
+    connectNode(Node1,Node2),
+    connectNode(Node1,Node3),
+    connectNode(Node1,Node4),
+    connectNode(Node2,Node3),
+    connectNode(Node2,Node4),
+    connectNode(Node3,Node4),
+    connectNode(Node4,Node5),
+    %register the node
     register(erlProject,spawn(fun()->launchNode() end)).
 
 % nth(N,[Head,Tail])->
@@ -74,6 +89,7 @@ store(Key, Value)->
     rpc({store,key,Value}).
 
 launchNode(N)->
+    % ConnectedNode = launchNode(N),
     receive
         {from,{store,Argument1,Argument2}}->
             put(Argument2,{ok,Argument2})
@@ -88,15 +104,16 @@ launchNode(N)->
     end.
 
 receiveAsnwer(N,M,DestinationNickname,SenderNickname,Hops)->
-    
+    M = computeNthPrime(N),
     end.
 
 computeNthPrime(N, DestinationNickname, SenderNickname, Hops)->
     N*computeNthPrime(N-1).
 
 
-connectNode(NicknameOne,PidOne,NickanmeTwo,PidTwo)->
-    
+connectNode(PidOne,PidTwo)->
+    PidOne = NicknameOne,
+    PidTwo = NickanmeTwo,
     end.
 
 printTable(Pid)->
@@ -115,6 +132,23 @@ keep_alive(Name, FUN) ->
     Pid = spawn(FUN),
     register(Name, Pid),
     on_exit(Pid, fun(_Reason) -> keep_alive(Name, FUN) end).
+
+% 
+% 22/3/22
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+
 
 % member(_,[])->
 %     false;
