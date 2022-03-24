@@ -88,8 +88,17 @@ store(Key, Value)->
     % returns process Pid
     rpc({store,key,Value}).
 
+node(IN_table)->
+    {computeNthPrime,N,DestinationNickname,SenderNickname,Hoops}->
+    new = IN_table +[{robert,<0.20.0>}]
+    node(new)
+    pid!{computeNthPrime,2,asdsadsa,sadsad,3}
+    
+    end.
+
 launchNode(N)->
-    % ConnectedNode = launchNode(N),
+    spawn(erlProject, node,[[]])
+    Pid = self(),
     receive
         {from,{store,Argument1,Argument2}}->
             put(Argument2,{ok,Argument2})
@@ -102,6 +111,8 @@ launchNode(N)->
             put(N,M,DestinationNickname,SenderNickname,Hoops)
         launchNode(N) %call itself to end.
     end.
+
+
 
 receiveAsnwer(N,M,DestinationNickname,SenderNickname,Hops)->
     M = computeNthPrime(N),
@@ -117,6 +128,7 @@ connectNode(PidOne,PidTwo)->
     end.
 
 printTable(Pid)->
+
     end.
 
 % Keep alive restart when killed
@@ -132,22 +144,6 @@ keep_alive(Name, FUN) ->
     Pid = spawn(FUN),
     register(Name, Pid),
     on_exit(Pid, fun(_Reason) -> keep_alive(Name, FUN) end).
-
-% 
-% 22/3/22
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
 
 
 % member(_,[])->
