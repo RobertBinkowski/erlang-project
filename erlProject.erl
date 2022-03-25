@@ -93,7 +93,6 @@ node(IN_table)->
     new = IN_table +[{robert,<0.20.0>}]
     node(new)
     pid!{computeNthPrime,2,asdsadsa,sadsad,3}
-    
     end.
 
 launchNode(N)->
@@ -111,8 +110,6 @@ launchNode(N)->
             put(N,M,DestinationNickname,SenderNickname,Hoops)
         launchNode(N) %call itself to end.
     end.
-
-
 
 receiveAsnwer(N,M,DestinationNickname,SenderNickname,Hops)->
     M = computeNthPrime(N),

@@ -8,16 +8,15 @@
 %%%-------------------------------------------------------------------
 -module(project).
 -include_lib("eunit/include/eunit.hrl").
--export([start/0, rpc/2, launchNode/1, print/1, serve/1, nth/1]).
+-export([start/0]).
 
 start()->
-    %This section creates and assigns the nodes
-    Node1 = launchNode(node1),
-    Node2 = launchNode(node2),
-    Node3 = launchNode(node3),
-    Node4 = launchNode(node4),
-    Node5 = launchNode(node5),
-    end.
+    %launch all the nodes
+    launchNode(Node1),
+    launchNode(Node2),
+    launchNode(Node3),
+    launchNode(Node4),
+    launchNode(Node5).
 
 % Call other process on the network
 % rpc(Pid, Message) ->
@@ -26,6 +25,7 @@ start()->
 %         {Pid, Reply} ->
 %             Reply
 %     end.
+
 % Launch Node
 launchNode(Nickname) ->
     Pid = spawn(project, node, [name, [],_]),
@@ -35,6 +35,7 @@ launchNode(Nickname) ->
 %     receive
 %         {Sender, Data}->
 
+% create a table
 listTable([H|T], Tail)->
     [H|listTable(T,Tail)];
 listTable([],Tail)->
@@ -43,9 +44,9 @@ listTable([],Tail)->
 node(Name, NeighbourList, Table)->
     receive
         {computeNthPrime,N,DestinationNickname,SenderNickname,Hoops}->
-
+            
         {receiveAnswer, N, M, DestinationNickname, SenderNickname,Hops}->
-
+            
     end.
 
 computeNthPrime(N,DestinationNickname,SenderNickname,Hoops)->
@@ -54,7 +55,7 @@ receiveAnswer(N, M, DestinationNickname, SenderNickname,Hops)->
     M = nth(N).
 
 print(Pid)->
-    io:format(("~p" ,Pid)).
+    io:format(("~p", Pid)).
 
 % Figure out the nth prime
 nth([])->
