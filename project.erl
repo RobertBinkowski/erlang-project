@@ -52,6 +52,7 @@ node(Name, NeighbourList, Table)->
 computeNthPrime(N,DestinationNickname,SenderNickname,Hoops)->
 
 receiveAnswer(N, M, DestinationNickname, SenderNickname,Hops)->
+    % get 
     M = nth(N).
 
 print(Pid)->

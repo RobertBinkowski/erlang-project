@@ -118,7 +118,6 @@ receiveAsnwer(N,M,DestinationNickname,SenderNickname,Hops)->
 computeNthPrime(N, DestinationNickname, SenderNickname, Hops)->
     N*computeNthPrime(N-1).
 
-
 connectNode(PidOne,PidTwo)->
     PidOne = NicknameOne,
     PidTwo = NickanmeTwo,
