@@ -24,3 +24,9 @@ loop() ->
         _ ->
             {error, bad_request}
     end.
+
+% Launch Node
+launchNode(Nickname) ->
+    Pid = spawn(project, node, [name, []]),
+    register(Nickname, Pid),
+    Pid.
