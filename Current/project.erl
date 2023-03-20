@@ -8,8 +8,6 @@
 % max number of hops in RIP
 -define(HOPS, 15).
 
-% Atoms
-
 start() ->
     P = {baby, 24, {junior, 2333}},
     io:fwrite("~w", [tuple_size(P)]).
@@ -25,8 +23,16 @@ loop() ->
             {error, bad_request}
     end.
 
-% Launch Node
+% Create A node
 launchNode(Nickname) ->
     Pid = spawn(project, node, [name, []]),
     register(Nickname, Pid),
     Pid.
+
+% Connect Nodes
+connectNode(NicknameOne, PidOne, NicknameTwo, PidTwo) ->
+    io:fwrite("Connect, Node\n").
+
+% Print Table of PID's
+printTable(Pid) ->
+    io:fwrite("Print, Table\n").
