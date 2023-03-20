@@ -4,17 +4,23 @@
 %%%-------------------------------------------------------------------
 -module(project).
 -export([start/0]).
-% -export([computeNthPrime/1]).
-%%-include_lib("eunit/include/eunit.hrl").
+
+% max number of hops in RIP
+-define(HOPS, 15).
+
+% Atoms
 
 start() ->
-    io:format("Hello World~n").
+    P = {baby, 24, {junior, 2333}},
+    io:fwrite("~w", [tuple_size(P)]).
 
-% Figure out the nth prime
-% computeNthPrime([])->
-%     [];
-% computeNthPrime([H|T])->
-%     List = lists.filter(fun(N) -> rem H /= 0 end, T);
-%     [H|computeNthPrime(List)];
-% computeNthPrime(N)->
-%     computeNthPrime(Lists: seq(2,N)).
+loop() ->
+    receive
+        {computeNthPrime, N, DestinationNickname, SenderNickname, Hops} ->
+            io:fwrite("Computer, Nth, Prime\n");
+        {receiveAnswer, N, M, DestinationNickname, SenderNickname, Hops} ->
+            io:fwrite("Receive, Answer\n");
+        %Empty Request Error
+        _ ->
+            {error, bad_request}
+    end.
