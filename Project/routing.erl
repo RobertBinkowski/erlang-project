@@ -1,19 +1,28 @@
 -module(routing).
--export([route/2, update_routing_table/3, get_route_pid/2, update_neighbor_routing_table/5]).
+-export([
+    route/2, update_routing_table/3, get_route_pid/2, update_neighbor_routing_table/5, print_table/1
+]).
 -include("header.hrl").
 
 route(Node, Msg) ->
     case Msg of
-        {compute_nth_prime, _N, DestinationNickname, _SenderNickname, _Hops} ->
+        {compute_nth_prime, N, DestinationNickname, SenderNickname, Hops} ->
             case get_route_pid(Node, DestinationNickname) of
+                {DestinationNickname, _NeighborPid} ->
+                    Prime = prime:nth_prime(N),
+                    SenderPid = node:get_pid(Node, SenderNickname),
+                    SenderPid ! {receive_answer, N, Prime, DestinationNickname, Hops};
                 {NeighborNickname, NeighborPid} ->
                     NeighborPid ! Msg,
                     update_routing_table(Node, DestinationNickname, NeighborNickname);
                 false ->
                     ok
             end;
-        {receive_answer, _N, _M, DestinationNickname, _SenderNickname, _Hops} ->
+        {receive_answer, N, M, DestinationNickname, SenderNickname, Hops} ->
             case get_route_pid(Node, DestinationNickname) of
+                {DestinationNickname, _NeighborPid} ->
+                    SenderPid = node:get_pid(Node, SenderNickname),
+                    SenderPid ! {receive_answer, N, M, DestinationNickname, Hops};
                 {NeighborNickname, NeighborPid} ->
                     NeighborPid ! Msg,
                     update_routing_table(Node, DestinationNickname, NeighborNickname);
@@ -65,3 +74,6 @@ update_neighbor_routing_table(Node, DestinationNickname, NeighborNickname, Neigh
         false ->
             ok
     end.
+
+print_table(Pid) ->
+    Pid ! {print_table}.

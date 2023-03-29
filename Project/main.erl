@@ -1,9 +1,7 @@
--module(project).
+-module(main).
 -export([
     launch_node/1,
-    connect_node/4,
     print_table/1,
-    compute_nth_prime/4,
     display_result/0
 ]).
 
@@ -14,10 +12,6 @@ launch_node(Nickname) ->
         node:node_loop(#node{nickname = Nickname, neighbors = [], routing_table = []})
     end).
 
-connect_node(NicknameOne, PidOne, NicknameTwo, PidTwo) ->
-    PidOne ! {connect, {NicknameTwo, PidTwo}},
-    PidTwo ! {connect, {NicknameOne, PidOne}}.
-
 print_table(Pid) ->
     Pid ! {print_table, self()},
     receive
@@ -25,13 +19,10 @@ print_table(Pid) ->
             io:format("Routing table: ~p~n", [Table])
     end.
 
-compute_nth_prime(Pid, N, DestinationNickname, SenderNickname) ->
-    Pid ! {compute_nth_prime, N, DestinationNickname, SenderNickname, 0}.
-
 display_result() ->
     receive
-        {receive_answer, N, M} ->
-            io:format("The ~p-th prime number is ~p.~n", [N, M])
+        {receive_answer, N, M, _DestinationNickname, Hops} ->
+            io:format("The ~p-th prime number is ~p (Hops: ~p).~n", [N, M, Hops])
     after 10000 ->
         io:format("No answer received.~n")
     end.

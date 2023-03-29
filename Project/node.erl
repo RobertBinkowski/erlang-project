@@ -1,5 +1,5 @@
 -module(node).
--export([node_loop/1, handle_update_routing_table/4, get_pid/2]).
+-export([node_loop/1, handle_update_routing_table/4, get_pid/2, connect_node/4]).
 -include("header.hrl").
 
 node_loop(Node) ->
@@ -20,6 +20,15 @@ node_loop(Node) ->
             node_loop(NewNode);
         {update_state, NewNode} ->
             node_loop(NewNode);
+        {receive_answer, N, M} ->
+            io:format("The ~p-th prime number is ~p.~n", [N, M]),
+            node_loop(Node);
+        {print_table} ->
+            io:format("Routing table for ~s:~n~p~n", [Node#node.nickname, Node#node.routing_table]),
+            node_loop(Node);
+        {connect, Pid, NeighborNickname} ->
+            NewNeighbors = Node#node.neighbors ++ [{NeighborNickname, Pid}],
+            node_loop(Node#node{neighbors = NewNeighbors});
         _ ->
             node_loop(Node)
     end.
@@ -47,3 +56,7 @@ get_pid(Node, Nickname) ->
         {Nickname, Pid} -> Pid;
         false -> false
     end.
+
+connect_node(NicknameOne, PidOne, NicknameTwo, PidTwo) ->
+    PidOne ! {connect, PidTwo, NicknameTwo},
+    PidTwo ! {connect, PidOne, NicknameOne}.
