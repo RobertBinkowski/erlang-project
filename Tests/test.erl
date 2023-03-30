@@ -1,9 +1,14 @@
-%% prime_tests.erl
--module(prime_test).
+-module(test).
 -include_lib("eunit/include/eunit.hrl").
--include("header.hrl").
+-include("../include/header.hrl").
+-export([run/0]).
 
-%% Test cases for is_prime/1
+run() ->
+    is_prime_test_(),
+    nth_prime_test_(),
+    next_prime_test_().
+
+%% Test cases for is_prime
 is_prime_test_() ->
     [
         ?_assertEqual(true, prime:is_prime(2)),
@@ -18,7 +23,7 @@ is_prime_test_() ->
         ?_assertEqual(true, prime:is_prime(11))
     ].
 
-%% Test cases for nth_prime/1
+%% Test cases for nth_prime
 nth_prime_test_() ->
     [
         ?_assertEqual(2, prime:nth_prime(1)),
@@ -33,7 +38,7 @@ nth_prime_test_() ->
         ?_assertEqual(29, prime:nth_prime(10))
     ].
 
-%% Test cases for next_prime/1
+%% Test cases for next_prime
 next_prime_test_() ->
     [
         ?_assertEqual(2, prime:next_prime(1)),
