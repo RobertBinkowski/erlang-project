@@ -11,7 +11,7 @@
 }).
 
 -record(packet, {
-    % Type of packet (e.g., request, answer)
+    % Type of packet (request/ answer)
     type,
     % Nickname of the node that sent the packet
     sender_nickname,

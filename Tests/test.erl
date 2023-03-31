@@ -1,12 +1,13 @@
 -module(test).
 -include_lib("eunit/include/eunit.hrl").
 -include("../include/header.hrl").
--export([run/0]).
+-export([test/0]).
 
-run() ->
+test() ->
     is_prime_test_(),
     nth_prime_test_(),
-    next_prime_test_().
+    next_prime_test_(),
+    test_nodes().
 
 %% Test cases for is_prime
 is_prime_test_() ->
@@ -52,3 +53,21 @@ next_prime_test_() ->
         ?_assertEqual(23, prime:next_prime(21)),
         ?_assertEqual(29, prime:next_prime(27))
     ].
+
+test_nodes() ->
+    % Start nodes
+    node:start(),
+
+    % Set Nodes to test
+    RequesterNickname = nodeA,
+    DestinationNickname = nodeB,
+
+    % Request the 10th prime number from the destination node
+    N = 10,
+    node:request_nth_prime(N, RequesterNickname, DestinationNickname),
+
+    % Timer is added to allow the process to finish
+    timer:sleep(200),
+
+    % Print results
+    io:format("Test case for requesting the ~Bth prime number completed.~n", [N]).

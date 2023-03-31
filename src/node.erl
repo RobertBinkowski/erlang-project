@@ -1,44 +1,41 @@
 -module(node).
 -export([
-    start/0, launchNode/1, connectNode/4, node_loop/1, getPid/1, printTable/1, is_connected/2
+    start/0,
+    launchNode/1,
+    connectNode/4,
+    node_loop/1,
+    getPid/1,
+    printTable/1,
+    is_connected/2,
+    request_nth_prime/3
 ]).
 
 -include("../include/header.hrl").
 
 start() ->
-    % Create list of nodes with random names
-    Nodes = lists:map(
-        fun(_) ->
-            % Create a random number
-            RandomInt = rand:uniform(10000),
-            % Generate a node name with a random number attached
-            Nickname = "node" ++ integer_to_list(RandomInt),
-            % Create a node
-            {Nickname, launchNode(Nickname)}
-        end,
-        % The size of the list
-        lists:seq(1, 5)
-    ),
+    % Create list of nodes with fixed names
+    NodeNames = ["nodeA", "nodeB", "nodeC", "nodeD", "nodeE"],
+    Nodes = [{Nickname, launchNode(Nickname)} || Nickname <- NodeNames],
+
     % Get their Pid's
     Pids = [getPid(Nickname) || {Nickname, _} <- Nodes],
 
     % Connect each node to its subsequent node in the list
     lists:foreach(
-        fun({Nickname, _}, Index) ->
+        fun({{Nickname, _}, Index}) ->
             NextIndex =
                 if
                     Index < length(Nodes) -> Index + 1;
                     true -> 1
                 end,
             {NextNickname, _} = lists:nth(NextIndex, Nodes),
-            connectNode(Nickname, getPid(Nickname), NextNickname, getPid(NextNickname))
+            _ = connectNode(Nickname, getPid(Nickname), NextNickname, getPid(NextNickname))
         end,
         lists:zip(Nodes, lists:seq(1, length(Nodes)))
     ),
 
     io:format("Start of the Node Module with nodes: ~p~n", [Pids]).
 
-% Spawn a node with a given name
 launchNode(Nickname) ->
     % Create a new Process
     Pid = spawn(fun() ->
@@ -46,8 +43,18 @@ launchNode(Nickname) ->
         % initialize a new Node with
         node_loop(#node{nickname = atomize(Nickname), pid = self(), routing_table = []})
     end),
-    % register an atom version of Nickname with a Pid
-    register(atomize(Nickname), Pid),
+    % Check if the name is already registered
+    case whereis(atomize(Nickname)) of
+        undefined ->
+            % If not registered, create a new process
+            register(atomize(Nickname), Pid);
+        OldPid ->
+            % If the name is already registered, unregister and kill process
+            unregister(atomize(Nickname)),
+            exit(OldPid, kill),
+            % Re-Register the new process
+            register(atomize(Nickname), Pid)
+    end,
     % Return nodePid
     Pid.
 
@@ -109,18 +116,26 @@ getPid(Nickname) ->
             Pid
     end.
 
+request_nth_prime(N, RequesterNickname, DestinationNickname) ->
+    RequesterPid = getPid(RequesterNickname),
+    RequesterPid ! {self(), {request_nth_prime, N, DestinationNickname, RequesterNickname}},
+    receive
+        {Node, {request_nth_prime, _, _, _}} ->
+            routing:compute_nth_prime(Node, N, DestinationNickname, RequesterNickname, 1)
+    end.
+
 % Connect Two nodes together
 connectNode(NicknameOne, PidOne, NicknameTwo, PidTwo) ->
     % Connect One node to the other
     PidOne ! {connect, PidTwo, NicknameTwo},
     PidTwo ! {connect, PidOne, NicknameOne},
-    % Return True
+
     % Check if the nodes are connected and return the result
-    node1_connected_to_node2 = is_connected(NicknameOne, NicknameTwo),
-    node2_connected_to_node1 = is_connected(NicknameTwo, NicknameOne),
+    Node1ConnectedToNode2 = is_connected(NicknameOne, NicknameTwo),
+    Node2ConnectedToNode1 = is_connected(NicknameTwo, NicknameOne),
 
     % Return true if both nodes have each other in their routing tables
-    node1_connected_to_node2 andalso node2_connected_to_node1.
+    Node1ConnectedToNode2 andalso Node2ConnectedToNode1.
 
 % Check if two are connected
 is_connected(Nickname1, Nickname2) ->
