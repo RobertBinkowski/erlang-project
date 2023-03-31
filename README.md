@@ -42,6 +42,12 @@ Then Run the test
 test:run().
 ```
 
+## Quit the terminal
+
+```
+q().
+```
+
 ## Directory Structure
 
 my_project/
