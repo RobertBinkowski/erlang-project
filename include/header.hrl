@@ -1,8 +1,24 @@
--define(HEADER_HRL, true).
-
 % If Not defined define  Number of max hoops
--define(MAX_HOOPS, 15).
+-define(MAX_HOPS, 15).
 
--record(node, {nickname, pid, routing_table}).
+-record(node, {
+    % Nickname on the node
+    nickname,
+    % Nodes Pid
+    pid,
+    % Nodes routing table
+    routing_table
+}).
 
--record(packet, {source_nickname, destination_nickname, sender_nickname, hops}).
+-record(packet, {
+    % Type of packet (e.g., request, answer)
+    type,
+    % Nickname of the node that sent the packet
+    sender_nickname,
+    % Nickname of the destination node
+    destination_nickname,
+    % Content of the packet
+    payload,
+    % Number of hops the packet has taken
+    hops
+}).
